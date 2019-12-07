@@ -2,6 +2,7 @@ package ir.maktab.hw4.User;
 
 import ir.maktab.hw4.Products.Product;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +12,19 @@ public class ShoppingCart {
     private ShoppingCartDAO shoppingCartDAO = new ShoppingCartDAO(userId);
 
     HashMap<Integer, Integer> cart = new HashMap<Integer, Integer>(); //2dimensional hashmap to save productId and number of product
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+        shoppingCartDAO.setUserId(userId);
+    }
+
+    public void loadCartFromDB() {
+        try {
+            cart = shoppingCartDAO.loadCart();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public boolean addItemToCart(int productId, int productNo, Product product) {
         System.out.println(cart.size()); //for test delete later

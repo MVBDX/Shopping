@@ -5,14 +5,19 @@ import ir.maktab.hw4.Products.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ShoppingCartDAO {
     private static final String tableName = "cart";
-    private int userId;
+    private static int userId;
 
     public ShoppingCartDAO(int userId) {
         this.userId = userId;
+    }
+
+    public void setUserId(int userId) {
+        ShoppingCartDAO.userId = userId;
     }
 
     public boolean add(Product product, int quantity) {
@@ -28,7 +33,7 @@ public class ShoppingCartDAO {
             if (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 quantity += resultSet.getInt("quantity");
-                updateQuery = "UPDATE " + tableName  + " SET quantity = ? WHERE id = ?";
+                updateQuery = "UPDATE " + tableName + " SET quantity = ? WHERE id = ?";
                 preparedStatement = connection.prepareStatement(updateQuery);
                 preparedStatement.setInt(1, quantity);
                 preparedStatement.setInt(2, id);
@@ -87,7 +92,7 @@ public class ShoppingCartDAO {
         ResultSet resultSet = null;
         try {
             Connection connection = DatabaseConfig.getDatabaseConnection();
-            String insertQuery = "select * from " + tableName; //+ " where userid = "; TODO
+            String insertQuery = "SELECT * FROM " + tableName + " WHERE userid = " + userId;
             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
             resultSet = preparedStatement.executeQuery();
         } catch (ClassNotFoundException e) {
@@ -97,6 +102,26 @@ public class ShoppingCartDAO {
         }
         return convertResultset2Array(resultSet);
     }
+
+    public HashMap<Integer, Integer> loadCart() throws SQLException { //Return all records of table
+        ResultSet resultSet = null;
+        HashMap<Integer, Integer> cartHashMap = new HashMap<Integer, Integer>();
+        try {
+            Connection connection = DatabaseConfig.getDatabaseConnection();
+            String insertQuery = "SELECT productid, quantity FROM " + tableName + " WHERE userid = " + userId;
+            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                cartHashMap.put(resultSet.getInt("productid"), resultSet.getInt("quantity"));
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cartHashMap;
+    }
+
 
     private static List<Product> convertResultset2Array(ResultSet resultSet) throws SQLException {
         List<Product> products = new ArrayList<Product>();

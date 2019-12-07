@@ -10,7 +10,8 @@ public class UserAccount {
     private String mobileNo;
     private String email;
     private Address address;
-    public ShoppingCart shoppingCart = new ShoppingCart(this.getId());
+    public ShoppingCart shoppingCart = new ShoppingCart(0);
+    private UserAccountDAO userAccountDAO = new UserAccountDAO();
 
     public ShoppingCart getShoppingCart() {
         return shoppingCart;
@@ -20,7 +21,7 @@ public class UserAccount {
         this.shoppingCart = shoppingCart;
     }
 
-    public UserAccount(String userName, String password, String firstName, String lastName, String mobileNo, String email, Address address) {
+    public UserAccount(String userName, String password, String firstName, String lastName, String mobileNo, String email, Address address, boolean addToDB) {
         this.idCounter++;
         this.id = idCounter;
         this.userName = userName;
@@ -30,10 +31,18 @@ public class UserAccount {
         this.mobileNo = mobileNo;
         this.email = email;
         this.address = address;
+        if(addToDB){
+            this.setId(userAccountDAO.add(this));
+        }
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+        shoppingCart.setUserId(id);
     }
 
     public String getUserName() {

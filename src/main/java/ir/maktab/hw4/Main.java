@@ -10,9 +10,9 @@ import ir.maktab.hw4.Products.Shoe.Formal;
 import ir.maktab.hw4.Products.Shoe.Sport;
 import ir.maktab.hw4.User.Address;
 import ir.maktab.hw4.User.UserAccount;
+import ir.maktab.hw4.User.UserAccountDAO;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -147,36 +147,53 @@ public class Main {
         userAccount.shoppingCart.removeItemFromCart(pid);
     }
 
-    private static void registerNewUser() {
-        System.out.println("Please register an account to continue and shop");
+    private static void registerNewUser() { //Register or login
+
         Scanner scanner = new Scanner(System.in);
+        int loginOrRegister = getUserInput("1 : Login\n2 : Register new user");
 
-        //Get user details to register a new account
-        System.out.println("Enter account name:");
-        String userName = scanner.nextLine();
-        System.out.println("Enter account password:");
-        String userPassword = scanner.nextLine();
-        System.out.println("Enter your first name:");
-        String firstName = scanner.nextLine();
-        System.out.println("Enter last name:");
-        String lastName = scanner.nextLine();
-        System.out.println("Enter your mobile number:");
-        String mobileNo = scanner.nextLine();
-        System.out.println("Enter your email:");
-        String email = scanner.nextLine();
+        if (loginOrRegister == 1) {
+            System.out.println("Username:");
+            String userName = scanner.nextLine();
+            System.out.println("Password:");
+            String userPassword = scanner.nextLine();
+            userAccount = UserAccountDAO.findUser(userName, userPassword);
+            if(userAccount == null) {
+                System.out.println("Login failed!");
+                registerNewUser();
+            } else {
+                userAccount.shoppingCart.loadCartFromDB();
+            }
+        } else {
+            System.out.println("Please register an account to continue.");
+            //Get user details to register a new account
+            System.out.println("Enter account name:");
+            String userName = scanner.nextLine();
+            System.out.println("Enter account password:");
+            String userPassword = scanner.nextLine();
+            System.out.println("Enter your first name:");
+            String firstName = scanner.nextLine();
+            System.out.println("Enter last name:");
+            String lastName = scanner.nextLine();
+            System.out.println("Enter your mobile number:");
+            String mobileNo = scanner.nextLine();
+            System.out.println("Enter your email:");
+            String email = scanner.nextLine();
 
-        //Get user full address
-        System.out.println("Enter your province name:");
-        String province = scanner.nextLine();
-        System.out.println("Enter city name:");
-        String city = scanner.nextLine();
-        System.out.println("Enter your street name:");
-        String streetName = scanner.nextLine();
-        System.out.println("Enter postal code:");
-        String postalCode = scanner.nextLine();
+            //Get user full address
+            System.out.println("Enter your province name:");
+            String province = scanner.nextLine();
+            System.out.println("Enter city name:");
+            String city = scanner.nextLine();
+            System.out.println("Enter your street name:");
+            String streetName = scanner.nextLine();
+            System.out.println("Enter postal code:");
+            String postalCode = scanner.nextLine();
 
-        userAccount = new UserAccount(userName, userPassword, firstName,
-                lastName, mobileNo, email,
-                new Address(province, city, streetName, postalCode));
+            userAccount = new UserAccount(userName, userPassword, firstName,
+                    lastName, mobileNo, email,
+                    new Address(province, city, streetName, postalCode), true);
+        }
+
     }
 }
