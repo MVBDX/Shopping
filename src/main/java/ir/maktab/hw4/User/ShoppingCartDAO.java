@@ -9,24 +9,48 @@ import java.util.List;
 
 public class ShoppingCartDAO {
     private static final String tableName = "cart";
+    private int userId;
 
-    public boolean add(Product product) {
+    public ShoppingCartDAO(int userId) {
+        this.userId = userId;
+    }
+
+    public boolean add(Product product, int quantity) {
         try {
             Connection connection = DatabaseConfig.getDatabaseConnection(); //Connection
-            String insertQuery = "INSERT INTO " + tableName +
-                    " (id,name,quantity,price,weight,type,category) VALUES(?, ?, ?, ?, ?, ?, ?);"; //Query
-            //Statement
-            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
-            //Execute query
-            preparedStatement.setInt(1, product.getId());
-            preparedStatement.setString(2, product.getName());
-            preparedStatement.setInt(3, product.getNumber());
-            preparedStatement.setInt(4, product.getPrice());
-            preparedStatement.setDouble(5, product.getWeight());
-            preparedStatement.setString(6, product.getBrand());
-            preparedStatement.setString(7, product.getCategory());
-            //USERID TODO
-            preparedStatement.execute();
+
+            String updateQuery = "SELECT * FROM " + tableName + " WHERE productid = " + product.getId()
+                    + " && userid = " + userId;
+            PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            //if we have the same product in same user cart, update data and add only quantity; else we insert
+            if (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                quantity += resultSet.getInt("quantity");
+                updateQuery = "UPDATE " + tableName  + " SET quantity = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(updateQuery);
+                preparedStatement.setInt(1, quantity);
+                preparedStatement.setInt(2, id);
+                preparedStatement.executeUpdate();
+            } else {
+
+                String insertQuery = "INSERT INTO " + tableName +
+                        " (productid,name,quantity,price,weight,type,category,userid) VALUES(?, ?, ?, ?, ?, ?, ?, ?);"; //Query
+                //Statement
+                preparedStatement = connection.prepareStatement(insertQuery);
+                //Execute query
+                preparedStatement.setInt(1, product.getId());
+                preparedStatement.setString(2, product.getName());
+                preparedStatement.setInt(3, quantity);
+                preparedStatement.setInt(4, product.getPrice());
+                preparedStatement.setDouble(5, product.getWeight());
+                preparedStatement.setString(6, product.getBrand());
+                preparedStatement.setString(7, product.getCategory());
+                preparedStatement.setInt(8, userId);
+                preparedStatement.execute();
+            }
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -40,7 +64,7 @@ public class ShoppingCartDAO {
         Product product = null;
         try {
             Connection connection = DatabaseConfig.getDatabaseConnection();
-            String insertQuery = "select * from " + tableName + " where id=" + id;
+            String insertQuery = "SELECT * FROM " + tableName + " WHERE id =" + id + " && userid = " + userId;
             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
@@ -84,7 +108,7 @@ public class ShoppingCartDAO {
             int weight = resultSet.getInt("weight");
             String type = resultSet.getString("type");
             String category = resultSet.getString("category");
-            products.add(new Product(name,price,category,type,weight,quantity) {
+            products.add(new Product(name, price, category, type, weight, quantity) {
                 @Override //Override just for using an abstract class
                 public String toString() {
                     return super.toString();
@@ -102,7 +126,7 @@ public class ShoppingCartDAO {
     public boolean delete(int id) { //Delete record by it's ID
         try {
             Connection connection = DatabaseConfig.getDatabaseConnection();
-            String insertQuery = "DELETE FROM " + tableName + " WHERE id=" + id;
+            String insertQuery = "DELETE FROM " + tableName + " WHERE productid = " + id + " && userid = " + userId;
             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
             preparedStatement.execute();
         } catch (SQLException e) {

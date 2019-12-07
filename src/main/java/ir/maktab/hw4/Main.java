@@ -134,7 +134,7 @@ public class Main {
         } else if (stockRoom.getProducts().get(pid - 1).getNumber() < userAccount.shoppingCart.getItemQuantity(pid) + quantity) {
             System.out.println("You can't enter a quantity more than in store!");
         } else {
-            userAccount.shoppingCart.addItemToCart(pid, quantity);
+            userAccount.shoppingCart.addItemToCart(pid, quantity, stockRoom.getProducts().get(pid - 1));
         }
     }
 

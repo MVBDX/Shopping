@@ -10,7 +10,7 @@ public class UserAccount {
     private String mobileNo;
     private String email;
     private Address address;
-    public ShoppingCart shoppingCart = new ShoppingCart();
+    public ShoppingCart shoppingCart = new ShoppingCart(this.getId());
 
     public ShoppingCart getShoppingCart() {
         return shoppingCart;

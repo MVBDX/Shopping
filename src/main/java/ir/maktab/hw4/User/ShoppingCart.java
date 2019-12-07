@@ -2,16 +2,17 @@ package ir.maktab.hw4.User;
 
 import ir.maktab.hw4.Products.Product;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class ShoppingCart {
     private static final int maxSize = 5; //Maximize size of the cart to hold the ordered items
+    private int userId;
+    private ShoppingCartDAO shoppingCartDAO = new ShoppingCartDAO(userId);
 
     HashMap<Integer, Integer> cart = new HashMap<Integer, Integer>(); //2dimensional hashmap to save productId and number of product
 
-    public boolean addItemToCart(int productId, int productNo) {
+    public boolean addItemToCart(int productId, int productNo, Product product) {
         System.out.println(cart.size()); //for test delete later
 
         if (cart.size() >= maxSize) {
@@ -20,11 +21,11 @@ public class ShoppingCart {
         }
 
         if (cart.containsKey(productId)) { //If the product already exist in list, just increase the quantity
-            System.out.println("old quantity:" + cart.get(productId)); //for debug
             cart.put(productId, cart.get(productId) + productNo);
-            System.out.println("new quantity:" + cart.get(productId)); //for debug
+            shoppingCartDAO.add(product, productNo);
         } else {
             cart.put(productId, productNo); //Save ID and Number of ordered product
+            shoppingCartDAO.add(product, productNo);
         }
         return true;
     }
@@ -43,6 +44,7 @@ public class ShoppingCart {
             return false;
         } else if (cart.containsKey(productId)) {
             cart.remove(productId); //Remove ordered product by ID
+            shoppingCartDAO.delete(productId);
             System.out.println("Product with id " + productId + " deleted from your cart");
             return true;
         } else {
@@ -86,6 +88,10 @@ public class ShoppingCart {
             System.out.println("Total price of your cart is: " + sum + " rials");
             return true;
         }
+    }
+
+    public ShoppingCart(int userId) {
+        this.userId = userId;
     }
 
 }
