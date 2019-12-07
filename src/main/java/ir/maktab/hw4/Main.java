@@ -22,14 +22,12 @@ public class Main {
     static UserAccount userAccount;
 
     public static void main(String[] args) throws SQLException {
-        addProductsToStockRoom(); //Adding products to empty stock room product list
+        loadProductsToStockRoom(); //Load products to empty stock room product list from db
         registerNewUser();
         menu();
     }
 
-    public static void addProductsToStockRoom() throws SQLException {
-        List<Product> products = ProductDAO.findAll();
-
+    public static void loadProductsToStockRoom() throws SQLException {
 //        products.add(new Book("یک عاشقانه آرام", 210000, "خواندنی", "1", 121, 3,
 //                1371, "کاهی", "فرهنگ نشر نو", 134, "فارسی", "رمان",
 //                "رقعی", "جلد نرم", "نادر ابراهیمی", 3));
@@ -47,6 +45,7 @@ public class Main {
 //        products.add(new Sport("کفش دویدن", 5000000, "کفش", "ADIDAS", 300,
 //                3, "Running", "", "بندی", "نارنجی", 35, true));
 
+        List<Product> products = ProductDAO.findAll(); //Import data from database instead of add new to stock
         stockRoom.setProducts(products);
     }
 
@@ -116,7 +115,6 @@ public class Main {
     }
 
     private static void displayStoreProducts() {
-
         for (Product prod : stockRoom.getProducts()) {
             System.out.println(prod.toString()
 //                    prod.getId() + "- " +
@@ -126,7 +124,6 @@ public class Main {
             );
         }
     }
-
 
     private static void addProductToCart() {
         int pid = getUserInput("Please enter item id:");
@@ -139,7 +136,6 @@ public class Main {
         } else {
             userAccount.shoppingCart.addItemToCart(pid, quantity);
         }
-
     }
 
     private static void showCart() {
